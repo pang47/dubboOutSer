@@ -212,7 +212,7 @@
 								</goals>
 								<configuration>
 									<target>
-										<copy tofile="${basedir}/src/main/resources/spring/spring-dubbo-provider.xml" file="${basedir}/src/main/resources/spring/spring-dubbo-provider-server.xml" overwrite="true" />
+										<copy tofile="${basedir}/src/main/resources/spring/spring-dubbo-consumer.xml" file="${basedir}/src/main/resources/spring/spring-dubbo-consumer-pro.xml" overwrite="true" />
 									</target>
 								</configuration>
 							</execution>
