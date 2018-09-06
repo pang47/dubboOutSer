@@ -24,7 +24,6 @@ public class CommonHandler implements HandlerInterceptor{
 		// TODO Auto-generated method stub
 		
 		
-		//System.out.println("À¹½ØÆ÷");
 		return true;
 	}
 
