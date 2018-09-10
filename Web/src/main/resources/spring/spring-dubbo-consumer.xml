@@ -6,11 +6,9 @@
    	
    	<dubbo:application name="dubbo_consumer"/>
    	<!-- <dubbo:annotation/> -->
-   	<!-- <dubbo:reference retries="0" timeout="20000"
+   	<dubbo:reference retries="0" timeout="20000"
                      url="dubbo://localhost:28080/com.service.CommonService"
-                     interface="com.service.CommonService" id="ct_dubbo_consumer" group="control_test"/> -->
-    <dubbo:registry protocol="zookeeper" address="39.108.159.40:2181"></dubbo:registry>
-    <dubbo:reference interface="com.service.CommonService" id="ct_dubbo_consumer" group="control_test"></dubbo:reference>
+                     interface="com.service.CommonService" id="ct_dubbo_consumer" group="control_test"/>
                 
 
 </beans>
