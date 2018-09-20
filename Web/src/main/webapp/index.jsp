@@ -8,13 +8,14 @@
 	}else{
 		realIp = realIp.split(",")[0];
 	}
+	String basePath = request.getContextPath();
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>dubbo测试页面</title>
-<script src="js/jquery-1.9.1.min.js"></script>
+<script src="<%=basePath %>/js/jquery-1.9.1.min.js"></script>
 <style type="text/css">
 	table.gridtable {
 		font-family: verdana,arial,sans-serif;
@@ -77,12 +78,12 @@
 		</tr>
 	</table>
 </body>
-<script src="js/jquery-extend.js"></script>
-<script src="js/index.js"></script>
+<script src="<%=basePath %>/js/jquery-extend.js"></script>
+<script src="<%=basePath %>/js/index.js"></script>
 <script>
 	var realIp = "<%=realIp%>";
+	
 	$("#gridtable").find('th').each(function(){
-		alert(1);
 		$(this).append(",地址:"+realIp);
 	});
 </script>
