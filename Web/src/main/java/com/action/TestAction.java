@@ -29,7 +29,6 @@ public class TestAction {
 	@RequestMapping("dubbo")
 	@ResponseBody
 	public Result dubbo(InputObject input){
-		JSONObject inputJson = new JSONObject();
 		JSONObject retJson = new JSONObject();
 		try{
 			retJson = SendDubboMsgUtils.sendJSON(input);
