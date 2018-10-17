@@ -1,11 +1,10 @@
 package com.util;
 
-import com.alibaba.fastjson.JSONObject;
+import java.io.Serializable;
 
-public class Result {
+public class Result<T> implements Serializable {
 	private String retCode; // 返回码0代表交易成功，没有异常
-	private JSONObject retObject;
-	private String retData;
+	private T retObj;
 	private String retMsg;
 
 	public Result() {
@@ -16,9 +15,9 @@ public class Result {
 		this.retMsg = retMsg;
 	}
 
-	public Result(String retCode, JSONObject retJson) {
+	public Result(String retCode, T retObj) {
 		this.retCode = retCode;
-		this.retObject = retJson;
+		this.retObj = retObj;
 	}
 
 	public String getRetCode() {
@@ -29,14 +28,6 @@ public class Result {
 		this.retCode = retCode;
 	}
 
-	public JSONObject getRetObject() {
-		return retObject;
-	}
-
-	public void setRetObject(JSONObject retObject) {
-		this.retObject = retObject;
-	}
-
 	public String getRetMsg() {
 		return retMsg;
 	}
@@ -45,12 +36,12 @@ public class Result {
 		this.retMsg = retMsg;
 	}
 
-	public String getRetData() {
-		return retData;
+	public T getRetObj() {
+		return retObj;
 	}
 
-	public void setRetData(String retData) {
-		this.retData = retData;
+	public void setRetObj(T retObj) {
+		this.retObj = retObj;
 	}
 
 }

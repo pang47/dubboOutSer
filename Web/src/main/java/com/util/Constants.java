@@ -1,10 +1,12 @@
 package com.util;
 
 public class Constants {
-	public static String successCode = "0";
-	public static String unknownErrorCode = "-1";
-	public static String successMsg = "成功返回";
-	public static String isEmptyCode = "9999";
-	public static String EmptyMsg = "返回报文为空";
-	public static String netErrorCode = "1000";
+	public static final String SUCCESSCODE = "0";
+	public static final String UNKNOWERRORCODE = "-1";
+	public static final String SUCCESSMSG = "成功返回";
+	public static final String ISEMPTYCODE = "9999";
+	public static final String EMPTYMSG = "返回报文为空";
+	public static final String NETERRORCODE = "1000";
+	public static final String PARAMERRORCODE = "2000";
+	public static final String PARAMERRORMSG = "参数错误";
 }

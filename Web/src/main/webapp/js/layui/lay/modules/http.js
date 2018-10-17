@@ -1,5 +1,6 @@
-layui.define(['jquery'],function(exports){
+layui.define(['jquery','layer'],function(exports){
 	var $ = layui.jquery;
+	var layer = layui.layer;
 	
 	function getLocation(){
 		var curWwwPath = window.document.location.href;
@@ -11,20 +12,24 @@ layui.define(['jquery'],function(exports){
 	}
 	
 	var obj = {
-		ajax:function(action,serviceId,methodId,param,callBack){
+		ajax:function(serviceId,methodId,param,callBack){
 			var cont = {};
 			cont.service_id = serviceId;
 			cont.method_id = methodId;
 			cont.params = param;
+			console.log(cont);
 			$.ajax({
-				url:getLocation()+'/Web/'+action+'do',
+				url:getLocation()+'/Web/data/commonInvoke.do',
 				dataType:'json',
-				contentType:'application/json',
-				data :JSON.stringify(cont),
-				type:'POST',
-				//cache:false,		
+				data :cont,
+				type:'POST',	
 				success:function(data){
-					if(callBack) callBack(data);
+					if(data.retCode=="0"){
+						if(callBack) callBack(data.retObj);
+					}else{
+						layer.alert(data.retMsg);
+					}
+					
 				},
 				error:function(data){
 					alert(JSON.stringify(data));

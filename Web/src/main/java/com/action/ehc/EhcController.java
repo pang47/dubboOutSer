@@ -40,6 +40,7 @@ public class EhcController {
 	
 	@RequestMapping(value="MD5Util",method=RequestMethod.POST)
 	@ResponseBody
+	@SuppressWarnings(value={"unchecked","rawtypes"})
 	public Result md5Util(@RequestBody JSONObject reqObj) {
 		Result result = new Result();
 		String timestamp = String.valueOf(System.currentTimeMillis());
@@ -67,19 +68,27 @@ public class EhcController {
 		JSONObject retObj = new JSONObject();
 		retObj.put("sign", encryptDate);
 		retObj.put("beforeSign", retStr);
-		result.setRetCode(Constants.successCode);
-		result.setRetObject(retObj);
+		result.setRetCode(Constants.SUCCESSCODE);
+		result.setRetObj(retObj);
 		return result;
 	}
 	
 	@RequestMapping(value="sendPost",method=RequestMethod.POST)
 	@ResponseBody
+	@SuppressWarnings(value={"unchecked","rawtypes"})
 	public Result sendPost(@RequestBody JSONObject reqObj){
 		Result retObj = new Result();
 		
 		//获取reqObj内的参数
 		String urlStr = reqObj.getString("url");
 		String appkey = reqObj.getString("appkey");
+		if(StringUtils.isEmpty(urlStr)){
+			retObj.setRetCode(Constants.PARAMERRORCODE);
+			retObj.setRetMsg(Constants.PARAMERRORMSG);
+			return retObj;
+		}
+		boolean isCommon = reqObj.getBooleanValue("isCommon");
+		String encrypt_key = reqObj.getString("encrypt_key");
 		JSONObject sendObj = reqObj.getJSONObject("reqObj");
 		
 		Map<String, String> headers = new HashMap<String, String>();
@@ -94,7 +103,7 @@ public class EhcController {
 			OutputStream writer = null;
 			InputStream inputStream = null;
 			conn = (HttpURLConnection) url.openConnection();
-			conn.setConnectTimeout(60000);
+			conn.setConnectTimeout(1800000);
 			conn.setReadTimeout(90000);
 			conn.setUseCaches(false);
 			for (Entry<String, String> entry : headers.entrySet()) {
@@ -119,50 +128,70 @@ public class EhcController {
 				}
 			} else {
 				logger.info("响应错误：" + conn.getResponseCode() + ", " + conn.getResponseMessage());
-				retObj.setRetCode(Constants.netErrorCode);
+				retObj.setRetCode(Constants.NETERRORCODE);
 				retObj.setRetMsg("响应错误:" + conn.getResponseCode() + ", " + conn.getResponseMessage());
 				return retObj;
 			}
 			logAndMsg("响应报文 解密前:" + responseXml, retMsg);
-			if (StringUtils.isNotEmpty(responseXml)) {
-				JSONObject res = JSONObject.parseObject(responseXml);
-				if (StringUtils.isNotEmpty(res.getString("biz_content"))) {
-					res.put("biz_content",SecurityUtil.decrypt(res.getString("biz_content"), res.getString("enc_type"), appkey, "appId"));
-				}
-				logAndMsg("响应报文 解密后:" + JSONObject.toJSONString(res), retMsg);
-				String signOld = res.getString("sign");
-				String signNew = createSign(res, reqObj.getString("appkey"), retMsg);
-				if (StringUtils.isEmpty(signOld) || !signOld.equals(signNew)){
-					retObj.setRetCode(Constants.unknownErrorCode);
-					retObj.setRetMsg("返回报文验签失败");
-					retObj.setRetObject(null);
+			if(!isCommon){
+				if (StringUtils.isNotEmpty(responseXml)) {
+					JSONObject res = JSONObject.parseObject(responseXml);
+					res.put("biz_content",SecurityUtil.decrypt(res.getString("resData"), res.getString("encryptType"), encrypt_key, null));
+					logAndMsg("返回信息为:", retMsg);
+					logAndMsg(res.getString("biz_content"),retMsg);
+				}else{
+					retObj.setRetCode(Constants.ISEMPTYCODE);
+					retObj.setRetMsg(Constants.EMPTYMSG);
+					retObj.setRetObj(null);
 					return retObj;
 				}
-			} else {
-				retObj.setRetCode(Constants.isEmptyCode);
-				retObj.setRetMsg(Constants.EmptyMsg);
-				retObj.setRetObject(null);
-				return retObj;
+			}else{
+				if (StringUtils.isNotEmpty(responseXml)) {
+					JSONObject res = JSONObject.parseObject(responseXml);
+					if (StringUtils.isNotEmpty(res.getString("biz_content"))) {
+						res.put("biz_content",SecurityUtil.decrypt(res.getString("biz_content"), res.getString("enc_type"), appkey, "appId"));
+					}
+					logAndMsg("响应报文 解密后:" + JSONObject.toJSONString(res), retMsg);
+					String signOld = res.getString("sign");
+					String signNew = createSign(res, reqObj.getString("appkey"), retMsg);
+					if (StringUtils.isEmpty(signOld) || !signOld.equals(signNew)){
+						retObj.setRetCode(Constants.UNKNOWERRORCODE);
+						retObj.setRetMsg("返回报文验签失败");
+						retObj.setRetObj(null);
+						return retObj;
+					}
+				} else {
+					retObj.setRetCode(Constants.ISEMPTYCODE);
+					retObj.setRetMsg(Constants.EMPTYMSG);
+					retObj.setRetObj(null);
+					return retObj;
+				}
 			}
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			retObj.setRetCode(Constants.unknownErrorCode);
+			retObj.setRetCode(Constants.UNKNOWERRORCODE);
 			retObj.setRetMsg(e.getMessage());
 			return retObj;
 		} catch (IOException e) {
 			e.printStackTrace();
-			retObj.setRetCode(Constants.unknownErrorCode);
+			retObj.setRetCode(Constants.UNKNOWERRORCODE);
 			retObj.setRetMsg(e.getMessage());
 			return retObj;
 		} catch (Exception e) {
 			e.printStackTrace();
-			retObj.setRetCode(Constants.unknownErrorCode);
+			retObj.setRetCode(Constants.UNKNOWERRORCODE);
 			retObj.setRetMsg(e.getMessage());
 			return retObj;
 		}
-		retObj.setRetData(retMsg.toString());
-		retObj.setRetCode(Constants.successCode);
+		retObj.setRetObj(retMsg.toString());
+		retObj.setRetCode(Constants.SUCCESSCODE);
 		return retObj;
+	}
+	
+	@RequestMapping(value="commonPost")
+	@ResponseBody
+	public String commonPost(@RequestBody JSONObject req){
+		return "";
 	}
 	
 	private static String getSignContent(Map<String, String> map) {

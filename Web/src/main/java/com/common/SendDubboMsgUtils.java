@@ -13,6 +13,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.service.CommonService;
+import com.util.Constants;
 import com.util.InputObject;
 
 
@@ -26,6 +27,8 @@ public class SendDubboMsgUtils implements ServletContextListener{
 		//CommonService commonService = (CommonService) factory.getBean("ct_dubbo_consumer");
 		if(StringUtils.isEmpty(input.getService_id())||StringUtils.isEmpty(input.getMethod_id()))
 			throw new Exception("参数不全");
+		if(input.getParams()==null||("").equals(input.getParams().toString()))
+			throw new Exception("DUBBO交互参数为空");
 		log.info("发送报文:"+input.getService_id()+"."+input.getMethod_id()+";"+input.getParams());
 		JSONObject inputJson = new JSONObject();
 		inputJson.put("serviceName", input.getService_id());
@@ -35,6 +38,9 @@ public class SendDubboMsgUtils implements ServletContextListener{
 		JSONObject retJson = commonService.execute(inputJson);
 		if(retJson.containsKey("list"))
 			retJson.put("object", retJson.get("list"));
+		if(retJson.getString("retCode").equals(Constants.UNKNOWERRORCODE)){
+			throw new Exception(retJson.getString("message"));
+		}
 		log.info("返回报文:"+retJson.toJSONString());
 		return retJson;
 	}
