@@ -213,7 +213,7 @@
 								<configuration>
 									<target>
 										<copy tofile="${basedir}/src/main/resources/spring/spring-dubbo-consumer.xml" file="${basedir}/src/main/resources/spring/spring-dubbo-consumer-pro.xml" overwrite="true" />
-										<copy tofile="${basedir}/src/main/resources/config/log4j.properties" file="${basedir}/src/main/resources/log4j4Web.properties" overwrite="true" />
+										<copy tofile="${basedir}/src/main/resources/config/log4j.properties" file="${basedir}/src/main/resources/config/log4j4Web.properties" overwrite="true" />
 									</target>
 								</configuration>
 							</execution>
