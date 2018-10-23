@@ -15,6 +15,7 @@ layui.use(['element','http','menu'], function(){
 	$(".layui-nav-tree").find('a').each(function(){
 		$(this).click(function(){
 			var url = $(this).siblings('input').val();
+			url = getLocation()+"/Web"+url;
 			var title = $(this).html();
 			$(this).parents('.layui-bg-black').siblings('.layui-body').find('ul').append('<li class="that">'+title+'</li>').find('.that').removeClass('that')
 				.addClass('layui-this').siblings('li').each(function(){
@@ -37,6 +38,15 @@ layui.use(['element','http','menu'], function(){
 				iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
 			}
 		}
+	}
+	
+	function getLocation(){
+		var curWwwPath = window.document.location.href;
+		var pathName = window.document.location.pathname;
+	    var pos = curWwwPath.indexOf(pathName);
+	    //获取主机地址，如： http://localhost:8083
+	    var localhostPath = curWwwPath.substring(0, pos);
+	    return localhostPath;
 	}
 	
 });
