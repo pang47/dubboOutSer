@@ -63,7 +63,7 @@
 						<dl class="layui-nav-child">
 							<dd>
 								<a href="javascript:;">POST请求</a>
-								<input type="hidden" value='http://localhost:8081/Web/page/currPage?str=net/post'>
+								<input type="hidden" value='/page/currPage?str=net/post'>
 							</dd>
 						</dl>
 					</li>
