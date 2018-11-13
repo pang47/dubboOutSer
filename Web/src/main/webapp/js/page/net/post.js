@@ -49,10 +49,15 @@ layui.use(['http','layer','map','form'], function(){
 	$("#postBtn").click(function(){
 		var cont = {};
 		cont.appkey=$("#appkey").val().trim();
+		cont.appId = $("#appId").val().trim();
 		cont.reqObj=JSON.parse($("#request").val().trim());
 		if(!cont.reqObj){
 			layer.alert("请输入请求报文");
 			return;
+		}
+		cont.signMapType = "1";
+		if(type.indexOf("中间件")!=-1){
+			cont.signMapType = "2";
 		}
 		$("#logMsg").empty();
 		if(type.indexOf("大屏")!=-1){
@@ -63,6 +68,7 @@ layui.use(['http','layer','map','form'], function(){
 					var retData = result.retObj;
 					$("#logMsg").append("sign before MD5:"+retData.beforeSign);
 					$("#logMsg").append("<br>sign after MD5:"+retData.sign);
+					//$("#logMsg").scrollTop($("#logMsg div").height() - $("#logMsg").height());
 					cont.reqObj.sign = retData.sign;
 					sendPost(cont);
 				}else{
@@ -85,6 +91,7 @@ layui.use(['http','layer','map','form'], function(){
 				var retList = retData.split(";");
 				for(var i=0;i<retList.length;i++){
 					$("#logMsg").append("<br>"+retList[i]);
+					//$("#logMsg").scrollTop($("#logMsg div").height() - $("#logMsg").height());
 				}
 			}else{
 				layer.alert(result.retMsg);

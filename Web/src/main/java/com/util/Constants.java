@@ -9,4 +9,13 @@ public class Constants {
 	public static final String NETERRORCODE = "1000";
 	public static final String PARAMERRORCODE = "2000";
 	public static final String PARAMERRORMSG = "参数错误";
+	
+	public static final String COMMONERRORCODE = "-2";
+	
+	
+	
+	/*
+	 * 返回信息
+	 */
+	public static final String ERRORCODE = "00";  //正确返回信息
 }

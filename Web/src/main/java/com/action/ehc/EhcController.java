@@ -45,32 +45,70 @@ public class EhcController {
 		Result result = new Result();
 		String timestamp = String.valueOf(System.currentTimeMillis());
 		JSONObject request = reqObj.getJSONObject("reqObj");
+		String signMapType = reqObj.getString("signMapType");
+		String appId = reqObj.getString("appId");
 		// 签名数据集合
 		reqObj.put("timestamp", timestamp);
-		Map<String, String> signMap = new TreeMap<String, String>();
-		Set<Entry<String, Object>> entrys = request.entrySet();
-		// 获取签名键值
-		for (Entry<String, Object> entry : entrys) {
-			// 非空 且 非过滤签名组合
-			if (StringUtils.isNotEmpty(request.getString(entry.getKey())) && !"sign".contains(entry.getKey())) {
-				signMap.put(entry.getKey(), request.getString(entry.getKey()));
+		if(signMapType.equals("1")){
+			Map<String, String> signMap = new TreeMap<String, String>();
+			Set<Entry<String, Object>> entrys = request.entrySet();
+			// 获取签名键值
+			for (Entry<String, Object> entry : entrys) {
+				// 非空 且 非过滤签名组合
+				if (StringUtils.isNotEmpty(request.getString(entry.getKey())) && !"sign".contains(entry.getKey()) && !"method".contains(entry.getKey())) {
+					signMap.put(entry.getKey(), request.getString(entry.getKey()));
+				}
 			}
+			String retStr = getSignContent(signMap);
+			retStr += "key=" + reqObj.getString("appkey");
+			String signType = signMap.get("sign_type");
+			String encryptDate = "";
+			if (StringUtils.isEmpty(signType) || "MD5".toString().equals(signType)) {
+				logger.info("Sign Before MD5:" + retStr);
+				encryptDate = MD5Util.encrypt(retStr).toUpperCase();
+				logger.info("Sign Result MD5:" + encryptDate);
+			}
+			JSONObject retObj = new JSONObject();
+			retObj.put("sign", encryptDate);
+			retObj.put("beforeSign", retStr);
+			result.setRetCode(Constants.SUCCESSCODE);
+			result.setRetObj(retObj);
+			return result;
+		}else if(signMapType.equals("2")){
+			Map<String, String> signMap = new TreeMap<String, String>();
+			Set<Entry<String, Object>> entrys = request.getJSONObject("params").entrySet();
+			// 获取签名键值
+			for (Entry<String, Object> entry : entrys) {
+				// 非空 且 非过滤签名组合
+				if (StringUtils.isNotEmpty(request.getJSONObject("params").getString(entry.getKey())) && !"sign".contains(entry.getKey()) && !"method".contains(entry.getKey())) {
+					signMap.put(entry.getKey(), request.getJSONObject("params").getString(entry.getKey()));
+				}
+			}
+			String time = request.getString("time");
+			signMap.put("time", time != null ? time.toString() : "");
+			String retStr = "";
+			retStr += appId;
+			retStr += getSignContent(signMap);
+			retStr += reqObj.getString("appkey");
+			String signType = signMap.get("sign_type");
+			String encryptDate = "";
+			if (StringUtils.isEmpty(signType) || "MD5".toString().equals(signType)) {
+				logger.info("Sign Before MD5:" + retStr);
+				encryptDate = MD5Util.encrypt(retStr).toUpperCase();
+				logger.info("Sign Result MD5:" + encryptDate);
+			}
+			JSONObject retObj = new JSONObject();
+			retObj.put("sign", encryptDate);
+			retObj.put("beforeSign", retStr);
+			result.setRetCode(Constants.SUCCESSCODE);
+			result.setRetObj(retObj);
+			return result;
+		}else{
+			result.setRetCode(Constants.PARAMERRORMSG);
+			result.setRetObj(Constants.PARAMERRORCODE);
+			return result;
 		}
-		String retStr = getSignContent(signMap);
-		retStr += "key=" + reqObj.getString("appkey");
-		String signType = signMap.get("sign_type");
-		String encryptDate = "";
-		if (StringUtils.isEmpty(signType) || "MD5".toString().equals(signType)) {
-			logger.info("Sign Before MD5:" + retStr);
-			encryptDate = MD5Util.encrypt(retStr).toUpperCase();
-			logger.info("Sign Result MD5:" + encryptDate);
-		}
-		JSONObject retObj = new JSONObject();
-		retObj.put("sign", encryptDate);
-		retObj.put("beforeSign", retStr);
-		result.setRetCode(Constants.SUCCESSCODE);
-		result.setRetObj(retObj);
-		return result;
+		
 	}
 	
 	@RequestMapping(value="sendPost",method=RequestMethod.POST)
@@ -148,15 +186,22 @@ public class EhcController {
 			}else{
 				if (StringUtils.isNotEmpty(responseXml)) {
 					JSONObject res = JSONObject.parseObject(responseXml);
-					if (StringUtils.isNotEmpty(res.getString("biz_content"))) {
-						res.put("biz_content",SecurityUtil.decrypt(res.getString("biz_content"), res.getString("enc_type"), appkey, "appId"));
-					}
-					logAndMsg("响应报文 解密后:" + JSONObject.toJSONString(res), retMsg);
-					String signOld = res.getString("sign");
-					String signNew = createSign(res, reqObj.getString("appkey"), retMsg);
-					if (StringUtils.isEmpty(signOld) || !signOld.equals(signNew)){
-						retObj.setRetCode(Constants.UNKNOWERRORCODE);
-						retObj.setRetMsg("返回报文验签失败");
+					if(Constants.ERRORCODE.equals(res.getString("errorcode"))){//成功返回
+						if (StringUtils.isNotEmpty(res.getString("biz_content"))) {
+							res.put("biz_content",SecurityUtil.decrypt(res.getString("biz_content"), res.getString("enc_type"), appkey, "appId"));
+						}
+						logAndMsg("响应报文 解密后:" + JSONObject.toJSONString(res), retMsg);
+						String signOld = res.getString("sign");
+						String signNew = createSign(res, reqObj.getString("appkey"), retMsg);
+						if (StringUtils.isEmpty(signOld) || !signOld.equals(signNew)){
+							retObj.setRetCode(Constants.UNKNOWERRORCODE);
+							retObj.setRetMsg("返回报文验签失败");
+							retObj.setRetObj(null);
+							return retObj;
+						}
+					}else{
+						retObj.setRetCode(res.getString("errorcode"));
+						retObj.setRetMsg(res.getString("message"));
 						retObj.setRetObj(null);
 						return retObj;
 					}

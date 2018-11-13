@@ -28,6 +28,7 @@
 						<option value="1001,01">安溪电子健康卡环境</option>
 						<option value="1001,02">安溪预交金大屏数据</option>
 						<option value="1001,03">榕医通预交金大屏数据</option>
+						<option value="1001,04">新版中间件</option>
 					</select>
 				</div>
 			</div>
@@ -91,6 +92,7 @@
 				</div>
 			</div>
 		</div>
+		
 		<div style="padding: 15px; text-align: center;">
 			<button class="layui-btn layui-btn-normal" id="postBtn">发送</button>
 		</div>
